@@ -3,7 +3,6 @@
 Author: Austin Lowe
 Date: 9/20/2015
 Assignment 1: PM/0 Virtual Machine
-Version 1.0
 COP3402 Systems Software
 Matthew B. Gerber (Adjunct)
 University of Central Florida
@@ -20,7 +19,7 @@ University of Central Florida
 FILE *ifp;
 FILE *ofp;
 
-int SP, BP, PC, IR, HALT;
+int sPoint = 0, bPoint = 1, pCount = 0, HALT = 0;
 int STACK[MAX_STACK_HEIGHT] = {0};
 int LEXI[MAX_LEXI_LEVELS];
 int LEXILvl;
@@ -44,73 +43,73 @@ void ALUOp(struct instruction *node)
         case 0:
             //Return
             LEXILvl = LEXILvl - 1;
-            SP = BP - 1;
-            PC = STACK[SP + 4];
-            BP = STACK[SP + 3];
+            sPoint = bPoint - 1;
+            pCount = STACK[sPoint + 4];
+            bPoint = STACK[sPoint + 3];
             break;
 
         case 1:
             //Pop the stack and push the negation of the result.
-            STACK[SP] = -STACK[SP];
+            STACK[sPoint] = -STACK[sPoint];
             break;
         case 2:
             //Pop the stack twice, add the values, and push the result.
-            SP = SP - 1;
-            STACK[SP] = STACK[SP] + STACK[SP + 1];
+            sPoint = sPoint - 1;
+            STACK[sPoint] = STACK[sPoint] + STACK[sPoint + 1];
             break;
         case 3:
             //Pop the stack twice, subtract the top value from the second value, and push the result.
-            SP = SP - 1;
-            STACK[SP] = STACK[SP] - STACK[SP + 1];
+            sPoint = sPoint - 1;
+            STACK[sPoint] = STACK[sPoint] - STACK[sPoint + 1];
             break;
         case 4:
             //Pop the stack twice, multiply the values, and push the result.
-            SP = SP - 1;
-            STACK[SP] = STACK[SP] * STACK[SP + 1];
+            sPoint = sPoint - 1;
+            STACK[sPoint] = STACK[sPoint] * STACK[sPoint + 1];
             break;
         case 5:
             //Pop the stack twice, divide the second value by the top value, and push the quotient.
-            SP = SP - 1;
-            STACK[SP] = STACK[SP] / STACK[SP + 1];
+            sPoint = sPoint - 1;
+            STACK[sPoint] = STACK[sPoint] / STACK[sPoint + 1];
             break;
         case 6:
             //Pop the stack, push 1 if the value is odd, and push 0 otherwise.
-            STACK[SP] = STACK[SP] % 2;
+            STACK[sPoint] = STACK[sPoint] % 2;
             break;
         case 7:
             //Pop the stack twice, divide the second value by the top value, and push the remainder.
-            SP = SP - 1;
-            STACK[SP] = STACK[SP] % STACK[SP + 1];
+            sPoint = sPoint - 1;
+            STACK[sPoint] = STACK[sPoint] % STACK[sPoint + 1];
             break;
         case 8:
             //Pop the stack twice and compare the top value t with the second value s. Push 1 if s = t and 0 otherwise.
-            SP = SP - 1;
-            STACK[SP] = STACK[SP] == STACK[SP + 1];
+            sPoint = sPoint - 1;
+            STACK[sPoint] = STACK[sPoint] == STACK[sPoint + 1];
             break;
         case 9:
             //Pop the stack twice and compare the top value t with the second value s. Push 1 if s not equal t and 0 otherwise.
-            SP = SP - 1;
-            STACK[SP] = STACK[SP] != STACK[SP + 1];
+            sPoint = sPoint - 1;
+            STACK[sPoint] = STACK[sPoint] != STACK[sPoint + 1];
             break;
         case 10:
             //Pop the stack twice and compare the top value t with the second value s. Push 1 if s < t and 0 otherwise.
-            SP = SP - 1;
-            STACK[SP] = STACK[SP] < STACK[SP + 1];
+            sPoint = sPoint - 1;
+            STACK[sPoint] = STACK[sPoint] < STACK[sPoint + 1];
             break;
         case 11:
             //Pop the stack twice and compare the top value t with the second value s. Push 1 if s ≤ t and 0 otherwise.
-            SP = SP - 1;
-            STACK[SP] = STACK[SP] <= STACK[SP + 1];
+            sPoint = sPoint - 1;
+            STACK[sPoint] = STACK[sPoint] <= STACK[sPoint + 1];
             break;
         case 12:
             //Pop the stack twice and compare the top value t with the second value s. Push 1 if s > t and 0 otherwise.
-            SP = SP - 1;
-            STACK[SP] = STACK[SP] > STACK[SP + 1];
+            sPoint = sPoint - 1;
+            STACK[sPoint] = STACK[sPoint] > STACK[sPoint + 1];
             break;
         case 13:
             //Pop the stack twice and compare the top value t with the second value s. Push 1 if s ≥ t and 0 otherwise.
-            SP = SP - 1;
-            STACK[SP] = STACK[SP] >= STACK[SP + 1];
+            sPoint = sPoint - 1;
+            STACK[sPoint] = STACK[sPoint] >= STACK[sPoint + 1];
             break;
         default:
             printf("Unrecognized Code");
@@ -196,7 +195,7 @@ void printStack()
         int j = 0;
         int frame = 0;
 
-        for(j = 1; j <= SP; j++)
+        for(j = 1; j <= sPoint; j++)
         {
             if(LEXI[frame] > 0 && j > LEXI[frame])
             {
@@ -264,7 +263,7 @@ void printList(struct instruction *node)
         node = node->next;
     }
     fprintf(ofp, "\n\t\t\t\tPC\tBP\tSP\tSTACK\n");
-    fprintf(ofp, "Initial Values\t\t\t%d\t%d\t%d\n", PC, BP, SP);
+    fprintf(ofp, "Initial Values\t\t\t%d\t%d\t%d\n", pCount, bPoint, sPoint);
 }
 
 void printListReverse(struct instruction *node);
@@ -284,7 +283,7 @@ void printListReverse(struct instruction *node)
 void printInstructions(struct instruction *node);
 void printInstructions(struct instruction *node)
 {
-    while(node->line != PC)
+    while(node->line != pCount)
     {
         node = node->next;
     }
@@ -295,7 +294,7 @@ void printInstructions(struct instruction *node)
 void printRegisters();
 void printRegisters()
 {
-    fprintf(ofp, "%d\t%d\t%d\t", PC, BP, SP);
+    fprintf(ofp, "%d\t%d\t%d\t", pCount, bPoint, sPoint);
     printStack();
     fprintf(ofp, "\n");
 
@@ -303,7 +302,7 @@ void printRegisters()
 
 int base(int level)
 {
-    int base1 = BP;
+    int base1 = bPoint;
     while(level > 0)
     {
         base1 = STACK[base1 + 1];
@@ -318,20 +317,20 @@ void execute(struct instruction *node);
 void execute(struct instruction *node)
 {
 
-    while(node->line != PC)
+    while(node->line != pCount)
     {
         node = node->next;
     }
 
     printInstructions(node);
-    PC++;
+    pCount++;
 
     switch(node->OP)
     {
         case 1:
             //LIT 0 M
-            SP = SP + 1;
-            STACK[SP] = node->M;
+            sPoint = sPoint + 1;
+            STACK[sPoint] = node->M;
             break;
 
         case 2:
@@ -341,66 +340,66 @@ void execute(struct instruction *node)
 
         case 3:
             //LOD L M
-            SP = SP + 1;
-            STACK[SP] = STACK[base(node->L) + node->M];
+            sPoint = sPoint + 1;
+            STACK[sPoint] = STACK[base(node->L) + node->M];
             break;
 
         case 4:
             //STO L M
-            STACK[base(node->L) + node->M] = STACK[SP];
-            SP = SP - 1;
+            STACK[base(node->L) + node->M] = STACK[sPoint];
+            sPoint = sPoint - 1;
             break;
 
         case 5:
             //CAL L M
-            STACK[SP+1] = 0;
-            STACK[SP+2] = base(node->L);
-            STACK[SP+3] = BP;
-            STACK[SP+4] = PC;
-            BP = SP +1;
-            PC = node->M;
-            LEXI[LEXILvl] = SP;
+            STACK[sPoint+1] = 0;
+            STACK[sPoint+2] = base(node->L);
+            STACK[sPoint+3] = bPoint;
+            STACK[sPoint+4] = pCount;
+            bPoint = sPoint +1;
+            pCount = node->M;
+            LEXI[LEXILvl] = sPoint;
             LEXILvl = LEXILvl + 1;
             break;
 
         case 6:
             //INC 0 M
-            SP = SP + node->M;
+            sPoint = sPoint + node->M;
             break;
 
         case 7:
             //JMP 0 M
-            PC = node->M;
+            pCount = node->M;
             break;
 
         case 8:
             //JPC
-            if(STACK[SP] == 0)
+            if(STACK[sPoint] == 0)
             {
-                PC = node->M;
+                pCount = node->M;
             }
-            SP = SP - 1;
+            sPoint = sPoint - 1;
             break;
 
         case 9:
             //SIO 0 1
-            printf("\n%d\n", STACK[SP]);
-            SP = SP - 1;
+            printf("\n%d\n", STACK[sPoint]);
+            sPoint = sPoint - 1;
            break;
         case 10:
             //SIO 0 2
-            SP = SP + 1;
+            sPoint = sPoint + 1;
             printf("Enter integer to push on the stack: ");
-            scanf("%d", &STACK[SP]);
+            scanf("%d", &STACK[sPoint]);
             printf("\n");
             break;
 
         case 11:
             //SIO 0 3
             HALT = 1;
-            PC = 0;
-            BP = 0;
-            SP = 0;
+            pCount = 0;
+            bPoint = 0;
+            sPoint = 0;
             break;
     }
 
@@ -422,13 +421,6 @@ int main()
         readFile(&root, code, linenum);
         linenum++;
     }
-
-    PC = 0;
-    SP = 0;
-    BP = 1;
-    IR = 0;
-    LEXILvl = 0;
-    HALT = 0;
 
     printList(root);
 

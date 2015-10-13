@@ -10,6 +10,10 @@ University of Central Florida
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+
+FILE *ifp, *lfp, *cifp, tlfp*;
+
 
 typedef enum {
 nulsym = 1, identsym, numbersym, plussym, minussym,
@@ -22,6 +26,10 @@ readsym, elsesym
 
 int main()
 {
+    ifp = fopen("input.txt", "r");
+    lfp = fopen("lexemetable.txt", "w");
+    cifp = fopen("cleaninput.txt", "w");
+    tlfp = fopen("tokenlist.txt", "w");
 
     return 0;
 }

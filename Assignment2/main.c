@@ -89,6 +89,7 @@ int main(void){
         printf("\"input.txt\" file not found\n");
         exit(1);
     }
+    fprintf(lfp, "lexeme\t\ttoken type\n");
 
     // get the first character from the input file
     c = fgetc(ifp);
@@ -122,14 +123,17 @@ int main(void){
             fprintf(cifp,"%c",c);
             c = fgetc(ifp);
         }
-    }
 
-    // Print the lexime list to the lexime output file
-    // Go through each "word" in the linked list code
-    fprintf(lfp, "lexeme\t\ttoken type\n");
-    for(; head->next != NULL; head = head->next){
-        fprintf(lfp, "%s\t\t", head->word);
-        findLexeme(lfp, head->word, tlfp, symbol_table, &numSymbols, lineNum);
+        // Print the lexime list to the lexime output file
+        // Go through each "word" in the linked list code
+        for(; head->next != NULL; head = head->next){
+            fprintf(lfp, "%s\t\t", head->word);
+            findLexeme(lfp, head->word, tlfp, symbol_table, &numSymbols, lineNum);
+        }
+
+        if(c == '\n'){
+            lineNum += 1;
+        }
     }
 
 
@@ -573,4 +577,3 @@ node *createNode(){
     ptr->next = NULL;
     return ptr;
 }// end function createNode
-

@@ -21,12 +21,14 @@ To run the program simply enter the following command:
 
 INPUT FILE
 
-input.txt:
+tokenlist.txt:
 
 
 OUTPUT FILES
 
-cleaninput.txt:
+symboltable.txt:
+
+mcode.txt:
 
 
 ============================================================================

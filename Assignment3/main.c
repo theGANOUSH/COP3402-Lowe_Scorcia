@@ -12,9 +12,35 @@ University of Central Florida
 #include <string.h>
 #include <ctype.h>
 
-int main(int argc, char **argv)
+FILE *ifp;
+FILE *ofp;
+FILE *stfp;
+
+struct token
 {
-	
+    int OP;
+    int L;
+    int M;
+    int line;
+    char opString[4];
+    struct token *left;
+    struct token *right;
+};
+
+int main()
+{
+    struct token *root = NULL;
+
+    ifp = fopen("tokenlist.txt", "r+");
+    ofp = fopen("mcode.txt", "w+");
+    stfp = fopen("symboletable.txt", "w+");
+
+
+
+
+    fclose(ifp);
+    fclose(ofp);
+    fclose(stfp);
 	return 0;
 }
 

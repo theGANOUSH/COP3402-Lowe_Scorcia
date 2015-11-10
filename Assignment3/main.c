@@ -18,23 +18,39 @@ FILE *stfp;
 
 struct token
 {
-    int OP;
-    int L;
-    int M;
     int line;
-    char opString[4];
-    struct token *left;
-    struct token *right;
+    char tokenString[11];
+    struct token *next;
 };
 
 int main()
 {
     struct token *root = NULL;
+    
+    int temp;
 
     ifp = fopen("tokenlist.txt", "r+");
     ofp = fopen("mcode.txt", "w+");
     stfp = fopen("symboletable.txt", "w+");
-
+    
+    
+    while(fscanf(ifp, "%d", &temp) != EOF)
+    {
+    	switch(temp)
+    	{
+    		case identsym:
+    		break;
+    		
+    		case numbsym:
+    		break;
+    		
+    		default:
+    		break;
+    		
+    	}
+    	
+    	
+    }
 
 
 

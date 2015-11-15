@@ -20,6 +20,7 @@ FILE *stfp;
 
 int currentToken = 0;
 int totalSymbols = 0;
+int stackIndex = 0;
 int lLevel = 0;
 
 typedef enum
@@ -44,24 +45,27 @@ symbol symbol_table[MAX_SYMBOL_TABLE_SIZE];
 void getToken();
 void program();
 void block();
+void constantSym();
+void variableSym();
+void procedure();
 void getIdentifier(symbol node);
+symbol fetchSymbol(char* name, int level);
 
 
 int main()
 {
-<<<<<<< HEAD
+
     //Set up variables
     struct token *root = NULL;
-=======
 
->>>>>>> origin/master
+
+
     ifp = fopen("tokenlist.txt", "r+");
     stfp = fopen("symboletable.txt", "w+");
     int c, i = 0, symbol, blanks = 0, lineNum = 1;
     char letter;
 
 
-<<<<<<< HEAD
     //Read char by char, and get symbol table
     fscanf(ifp, "%d", &c);
     while(!= feof(ifp)){
@@ -91,7 +95,7 @@ int main()
     //reopen ifp and deal with machine code
     FILE *newIFP = fopen("tokenlist.txt", "rb");
     ofp = fopen("mcode.txt", "w+");
-=======
+
     if(ifp == NULL)
     {
         printf("INPUT FILE IS NOT VALID\nEXITING");
@@ -99,16 +103,12 @@ int main()
         return -1;
     }
 
->>>>>>> origin/master
-
 
 
     fclose(ifp);
     fclose(ofp);
 	return 0;
 }
-<<<<<<< HEAD
-=======
 
 void getToken()
 {
@@ -120,95 +120,96 @@ void getIdentifier(symbol node)
 {
     fscanf(ifp, "%s", node.name);
 }
+
 void statement()
 {
-    getToken();
-    if(currentToken != becomessym)
-    {
-        printf("ERROR");
-        //Halt
-    }
-
-}
-void block()
-{
-    if(currentToken == constsym)
-    {
-        getToken();
-
-        do
-        {
-            symbol temp;
-            getToken();
-
-            if(currentToken != identsym)
-            {
-                printf("ERROR");
-
-            }
-            temp.kind = 1;
-            getIdentifier(temp);
-            temp.level = lLevel;
-            temp.addr = -1;
-
-            getToken();
-
-            if(currentToken != eqsym)
-            {
-                printf("ERROR");
-
-            }
-            getToken();
-
-            if(currentToken != numbersym)
-            {
-                printf("ERROR");
-
-            }
-
-            getToken();
-            temp.val = currentToken;
-            symbol_table[totalSymbols++] = temp;
-
-            getToken();
-
-        }while(currentToken == commasym);
-
-    }
-
-    if(currentToken == varsym)
-    {
-        do
-        {
-            getToken();
-
-            if(currentToken !=identsym)
-            {
-                printf("ERROR");
-                //HALT
-
-            }
-
-
-        }while(currentToken == commasym);
-    }
-
-    if(currentToken != semicolonsym)
-    {
-        printf("ERROR");
-
-    }
-
-    getToken();
-
-    while(currentToken == procsym)
+    symbol temp;
+    if(currentToken == callsym)
     {
         getToken();
 
         if(currentToken != identsym)
+        {
+            printf("ERROR");
+        }
+
+        //temp =
+
+        getToken();
+    }
+
+    if(currentToken == beginsym)
+    {
+        getToken();
+
+        statement();
+
+        while(currentToken == semicolonsym)
+        {
+
+            getToken();
+            statement();
+
+        }
+
+        if(currentToken != endsym)
+        {
+            printf("ERROR");
+
+        }
+
+        getToken();
+
+    }
+
+    if(currentToken == ifsym)
+    {
+        getToken();
+
+        condition();
+
+        if(currentToken != thensym)
+        {
+            printf("ERROR");
+
+        }
+        getToken();
+
+        statement();
+
+        if(currentToken == elsesym)
+        {
+            getToken();
+            statement();
+
+        }
 
 
     }
+
+}
+
+void block()
+{
+    if(currentToken == constsym)
+    {
+        constantSym();
+        getToken();
+    }
+
+    if(currentToken == varsym)
+    {
+       variableSym();
+       getToken();
+    }
+
+    while(currentToken == procsym)
+    {
+        procedure();
+        getToken();
+    }
+
+    statement();
 
 }
 
@@ -227,8 +228,158 @@ void program()
 
 }
 
+void constantSym()
+{
+    symbol temp;
+    getToken();
+
+    do
+    {
+
+        if(currentToken != identsym)
+        {
+            printf("ERROR");
+
+        }
+        temp.kind = 1;
+        getIdentifier(temp);
+        temp.level = lLevel;
+        temp.addr = -1;
+
+        getToken();
+
+        if(currentToken != eqsym)
+        {
+            printf("ERROR");
+
+        }
+        getToken();
+
+        if(currentToken != numbersym)
+        {
+            printf("ERROR");
+
+        }
+
+        getToken();
+        temp.val = currentToken;
+        symbol_table[totalSymbols++] = temp;
+
+        getToken();
+
+    }while(currentToken == commasym);
+
+    if(currentToken != semicolonsym)
+    {
+        printf("ERROR");
+
+    }
 
 
+}
+
+void variableSym()
+{
+    symbol temp;
+    do
+    {
+        getToken();
+
+        if(currentToken !=identsym)
+        {
+            printf("ERROR");
+            //HALT
+
+        }
+
+        getIdentifier(temp);
+
+        temp.kind = 2;
+        temp.level = lexilevel;
+        temp.addr = 4 + totalVars++;
+
+        symbol_table[totalSymbols++] = temp;
+
+        getToken();
+
+    }while(currentToken == commasym);
+
+    if(currentToken != semicolonsym)
+    {
+        printf("ERROR");
+
+    }
+}
+
+void procedure()
+{
+    int totalProcess = 0;
+
+    do
+    {
+        totalProcess++;
+
+        getToken();
+
+        if(currentToken != identsym)
+        {
+            printf("ERROR");
+
+        }
+
+        getToken();
+
+        symbol_table[currentToken].level = lLevel;
 
 
->>>>>>> origin/master
+        getToken();
+
+        if(currentToken != semicolonsym)
+        {
+            printf("ERROR");
+
+        }
+        getToken();
+
+        block():
+
+        if(currentToken != semicolonsym)
+        {
+            printf("ERROR");
+
+        }
+
+        getToken();
+
+    }while(currentToken == procsym)
+
+
+}
+
+symbol fetchSymbol(char* name, int level)
+{
+    symbol *temp = (symbol*)malloc(sizeof symbol);
+    int i;
+    int lLevelMax = 0;
+
+    for(i =0; i < totalSymbols; i++)
+    {
+        if(strcmp(name, symbol_table[i].name) == 0)
+        {
+            if(symbol_table[i].level <= level)
+            {
+                if(symbol_table.level >= lLevelMax)
+                {
+                    temp = &symbol_table[i];
+
+                }
+
+            }
+        }
+
+    }
+
+    return *temp;
+}
+
+

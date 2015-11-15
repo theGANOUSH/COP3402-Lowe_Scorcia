@@ -136,7 +136,7 @@ void block()
     {
         getToken();
 
-        while(currentToken == commasym)
+        do
         {
             symbol temp;
             getToken();
@@ -172,13 +172,13 @@ void block()
 
             getToken();
 
-        }
+        }while(currentToken == commasym);
 
     }
 
     if(currentToken == varsym)
     {
-        while(currentToken == commasym)
+        do
         {
             getToken();
 
@@ -190,7 +190,24 @@ void block()
             }
 
 
-        }
+        }while(currentToken == commasym);
+    }
+
+    if(currentToken != semicolonsym)
+    {
+        printf("ERROR");
+
+    }
+
+    getToken();
+
+    while(currentToken == procsym)
+    {
+        getToken();
+
+        if(currentToken != identsym)
+
+
     }
 
 }
@@ -206,6 +223,7 @@ void program()
         printf("ERROR");
         //halt
     }
+
 
 }
 

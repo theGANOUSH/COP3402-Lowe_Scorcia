@@ -17,6 +17,13 @@ typedef struct
     int addr;           // M address
 } symbol;
 
+<<<<<<< HEAD
+=======
+int currentToken = 0;
+int totalSymbols = 0;
+int stackIndex = 0;
+int lLevel = 0;
+>>>>>>> origin/master
 
 // create a enum for the token types
 typedef enum
@@ -79,6 +86,7 @@ int printSuccess;
 int level;
 
 
+<<<<<<< HEAD
 // function declarations
 void program( node *currentNode);
 void block( node *currentNode );
@@ -95,6 +103,16 @@ void getNextToken( node *currentNode );
 void error( int errorVal );
 void addtoSymbolTable( int symbolKind, int symListIndex );
 int findToken( int token );
+=======
+void getToken();
+void program();
+void block();
+void constantSym();
+void variableSym();
+void procedure();
+void getIdentifier(symbol node);
+symbol fetchSymbol(char* name, int level);
+>>>>>>> origin/master
 
 
 node *createNode( int data );
@@ -127,8 +145,51 @@ int main()
     node *currentNode, **head;
     currentNode = getTokenList();
 
+<<<<<<< HEAD
     // put the symbol table into global variable symbol table
     stSize = getSymbolList( symbolList );
+=======
+    //Set up variables
+    struct token *root = NULL;
+
+
+
+    ifp = fopen("tokenlist.txt", "r+");
+    stfp = fopen("symboletable.txt", "w+");
+    int c, i = 0, symbol, blanks = 0, lineNum = 1;
+    char letter;
+
+
+    //Read char by char, and get symbol table
+    fscanf(ifp, "%d", &c);
+    while(!= feof(ifp)){
+        if(c == 2 || c == 3){
+            symbol = fgetc(ifp);
+            while(blanks < 2){
+                if(symbol==' '){
+                    blanks += 1;
+                    symbol = fgetc(ifp);
+                }
+                else(){
+                    fprintf(stpf, "%c", symbol);
+                    symbol = fgetc(ifp);
+                }
+            }
+        }
+        fprintf(stpf, " ");
+        blanks = 0;
+        fscanf(ifp, "%d", &c);
+    }
+
+    //Close all
+    fclose(ifp);
+    fclose(stfp);
+
+
+    //reopen ifp and deal with machine code
+    FILE *newIFP = fopen("tokenlist.txt", "rb");
+    ofp = fopen("mcode.txt", "w+");
+>>>>>>> origin/master
 
 
   /*  // for debugging - comment out when program running
@@ -165,6 +226,7 @@ int main()
 
 }// end function main
 
+<<<<<<< HEAD
 
 // checks to make sure this block of code fits the definition for a program
 // as defined by the EBNF grammar
@@ -172,6 +234,12 @@ void program( node *currentNode )
 {
     // get the first token
     getNextToken( currentNode );
+=======
+    fclose(ifp);
+    fclose(ofp);
+	return 0;
+}
+>>>>>>> origin/master
 
     block( currentNode );
 
@@ -253,6 +321,7 @@ void block( node *currentNode )
 // declaration as defined by EBNF
 int const_declaration( node *currentNode )
 {
+<<<<<<< HEAD
     int symListIndex, constIndex, constValue;
     int constCount = 0;
 
@@ -629,6 +698,29 @@ void condition( node *currentNode )
 
     // "odd" expression
     if ( currentToken == oddSym )
+=======
+    fscanf(ifp, "%s", node.name);
+}
+
+void statement()
+{
+    symbol temp;
+    if(currentToken == callsym)
+    {
+        getToken();
+
+        if(currentToken != identsym)
+        {
+            printf("ERROR");
+        }
+
+        //temp =
+
+        getToken();
+    }
+
+    if(currentToken == beginsym)
+>>>>>>> origin/master
     {
         getNextToken( currentNode );
 
@@ -638,6 +730,7 @@ void condition( node *currentNode )
 
     }
 
+<<<<<<< HEAD
     // expression rel_op expression
     else
     {
@@ -716,6 +809,50 @@ void expression( node *currentNode )
 
         getNextToken( currentNode );
         term( currentNode );
+=======
+        statement();
+
+        while(currentToken == semicolonsym)
+        {
+
+            getToken();
+            statement();
+
+        }
+
+        if(currentToken != endsym)
+        {
+            printf("ERROR");
+
+        }
+
+        getToken();
+
+    }
+
+    if(currentToken == ifsym)
+    {
+        getToken();
+
+        condition();
+
+        if(currentToken != thensym)
+        {
+            printf("ERROR");
+
+        }
+        getToken();
+
+        statement();
+
+        if(currentToken == elsesym)
+        {
+            getToken();
+            statement();
+
+        }
+
+>>>>>>> origin/master
 
         if ( addop == plusSym )
         {
@@ -729,6 +866,7 @@ void expression( node *currentNode )
         }
     }
 
+<<<<<<< HEAD
 }// end function expression
 
 
@@ -816,6 +954,44 @@ void factor( node *currentNode )
             error(15);
 
         getNextToken( currentNode );
+=======
+}
+
+void block()
+{
+    if(currentToken == constsym)
+    {
+        constantSym();
+        getToken();
+    }
+
+    if(currentToken == varsym)
+    {
+       variableSym();
+       getToken();
+    }
+
+    while(currentToken == procsym)
+    {
+        procedure();
+        getToken();
+    }
+
+    statement();
+
+}
+
+void program()
+{
+    getToken();
+
+    block();
+
+    if(currentToken != periodsym)
+    {
+        printf("ERROR");
+        //halt
+>>>>>>> origin/master
     }
     else
         error(16);
@@ -823,6 +999,7 @@ void factor( node *currentNode )
 }// end function factor
 
 
+<<<<<<< HEAD
 
 // gets the next token in the lexeme list from lexeme list linked list
 void getNextToken( node *currentNode )
@@ -842,7 +1019,55 @@ void getNextToken( node *currentNode )
 
 }// end function getNextToken
 
+=======
 
+}
+
+void constantSym()
+{
+    symbol temp;
+    getToken();
+
+    do
+    {
+
+        if(currentToken != identsym)
+        {
+            printf("ERROR");
+
+        }
+        temp.kind = 1;
+        getIdentifier(temp);
+        temp.level = lLevel;
+        temp.addr = -1;
+
+        getToken();
+
+        if(currentToken != eqsym)
+        {
+            printf("ERROR");
+
+        }
+        getToken();
+
+        if(currentToken != numbersym)
+        {
+            printf("ERROR");
+
+        }
+
+        getToken();
+        temp.val = currentToken;
+        symbol_table[totalSymbols++] = temp;
+
+        getToken();
+>>>>>>> origin/master
+
+    }while(currentToken == commasym);
+
+    if(currentToken != semicolonsym)
+    {
+        printf("ERROR");
 
 // exits program and prints appropriate error message
 void error( int errorVal )
@@ -914,6 +1139,7 @@ void error( int errorVal )
             break;
     }
 
+<<<<<<< HEAD
     printf( "\n" );
     exit(1);
 }// end function error
@@ -938,7 +1164,85 @@ node *getTokenList()
     {
         printf("File for token list not found\n");
         exit(1);
+=======
+
+}
+
+void variableSym()
+{
+    symbol temp;
+    do
+    {
+        getToken();
+
+        if(currentToken !=identsym)
+        {
+            printf("ERROR");
+            //HALT
+
+        }
+
+        getIdentifier(temp);
+
+        temp.kind = 2;
+        temp.level = lexilevel;
+        temp.addr = 4 + totalVars++;
+
+        symbol_table[totalSymbols++] = temp;
+
+        getToken();
+
+    }while(currentToken == commasym);
+
+    if(currentToken != semicolonsym)
+    {
+        printf("ERROR");
+
+>>>>>>> origin/master
     }
+}
+
+void procedure()
+{
+    int totalProcess = 0;
+
+    do
+    {
+        totalProcess++;
+
+        getToken();
+
+        if(currentToken != identsym)
+        {
+            printf("ERROR");
+
+        }
+
+        getToken();
+
+        symbol_table[currentToken].level = lLevel;
+
+
+        getToken();
+
+        if(currentToken != semicolonsym)
+        {
+            printf("ERROR");
+
+        }
+        getToken();
+
+        block():
+
+        if(currentToken != semicolonsym)
+        {
+            printf("ERROR");
+
+        }
+
+        getToken();
+
+    }while(currentToken == procsym)
 
     while(fscanf(tlfp, "%d", &buffer) != EOF)
     {
@@ -965,6 +1269,7 @@ node *getTokenList()
     }
 }
 
+<<<<<<< HEAD
     fclose(tlfp);
     fclose(stfp);
 
@@ -1106,6 +1411,33 @@ void addtoSymbolTable( int symbolKind, int symListIndex )
 int findToken( int token )
 {
     int location;
+=======
+symbol fetchSymbol(char* name, int level)
+{
+    symbol *temp = (symbol*)malloc(sizeof symbol);
+    int i;
+    int lLevelMax = 0;
+
+    for(i =0; i < totalSymbols; i++)
+    {
+        if(strcmp(name, symbol_table[i].name) == 0)
+        {
+            if(symbol_table[i].level <= level)
+            {
+                if(symbol_table.level >= lLevelMax)
+                {
+                    temp = &symbol_table[i];
+
+                }
+
+            }
+        }
+
+    }
+
+    return *temp;
+}
+>>>>>>> origin/master
 
     for ( location = stIndex; location > 0; location-- )
         if ( strcmp( symbolTable[location].name, symbolList[token].name ) == 0 )

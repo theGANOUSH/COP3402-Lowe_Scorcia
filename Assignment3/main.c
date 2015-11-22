@@ -175,6 +175,7 @@ void program( node *currentNode )
 
     block( currentNode );
 
+
     // if the program does not end with a period, error
     if (currentToken != periodSym )
     {
@@ -300,6 +301,7 @@ int const_declaration( node *currentNode )
 
     } while ( currentToken == commaSym );
 
+
     // if there are no more const, then we should have a semicolon
     if ( currentToken != semicolonSym )
         error(5);
@@ -347,6 +349,9 @@ int var_declaration( node *currentNode )
 
     } while ( currentToken == commaSym );
 
+    getNextToken(currentNode);
+//////////////////////////////////////////////////////////////////////////////
+ printf("CurrentNode = %d\nCurrentToken = %d", currentNode->token, currentToken);
     // if there are no more const, then we should have a semicolon
     if ( currentToken != semicolonSym )
         error(5);
@@ -434,7 +439,8 @@ void statement( node *currentNode )
         }
 
         getNextToken( currentNode );
-
+////////////////////////////////////////////////////////////////////////////////////
+ printf("CurrentNode = %d\nCurrentToken = %d", currentNode->token, currentToken);
         if ( currentToken != becomesSym )
             error(9);
 
@@ -837,6 +843,7 @@ void getNextToken( node *currentNode )
     {
         *currentNode = *currentNode->next;
     }
+
 
 
 

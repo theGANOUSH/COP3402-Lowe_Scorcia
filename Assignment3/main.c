@@ -382,4 +382,52 @@ symbol fetchSymbol(char* name, int level)
     return *temp;
 }
 
+/*
+// reads the lexeme list from file into a linked list and returns the head
+node *getTokenList()
+{
+    int buffer, i, symSize = 0, found = 0, end = 0;
+    char c, word[12];
+    FILE *tlfp;
+    symbol symbolList[100];
+
+
+    // create a pointer for the input file
+    tlfp = fopen("tokenlist.txt", "r");
+
+    // exit program if file not found
+    if (tlfp == NULL) {
+        printf("File for token list not found\n");
+        exit(1);
+    }
+
+    FILE *stfp = fopen("symboltable.txt", "w");
+    node *head, *tail;
+    head = tail = NULL;
+    fscanf(tlfp, "%d", &buffer);
+    head = tail = insertNode(head, tail, buffer);
+    // keep scanning until reaching the end of the file
+    while(fscanf(tlfp, "%d", &buffer) != EOF)
+    {
+        tail = insertNode(head, tail, buffer);
+        tail->token = buffer;
+        if(buffer == 2 || buffer == 3){
+            fscanf(tlfp, "%s", word);
+            for(i=0; i<symSize; i++){
+                if(strcmp(word, symbolList[i].name) == 0)
+                    found = 1;
+            }
+            if (found != 1){
+                strcpy(symbolList[symSize].name, word);
+                fprintf(stfp, "%s ", word);
+                symSize += 1;
+            }
+            memset(word, 0, 12);
+        }
+        fscanf(tlfp, "%d", &buffer);
+    }
+    fclose(tlfp);
+    return head;
+}// end function getTokenList
+*/
 

@@ -292,8 +292,8 @@ int const_declaration( node *currentNode )
         // constant to the value of the integer
         getNextToken( currentNode );
         constIndex = currentToken;
-        constValue = atoi( symbolList[constIndex].name );
-        symbolTable[stIndex].val = constValue;
+        constValue = currentToken;
+        symbolList[stIndex].val = constValue;
 
         getNextToken( currentNode );
 
@@ -570,7 +570,7 @@ void statement( node *currentNode )
         i = currentToken;
         index = findToken(i);
 
-        if ( symbolTable[index].kind != variable )
+        if ( symbolList[index].kind != variable )
         {
             error(11);
         }
@@ -578,7 +578,7 @@ void statement( node *currentNode )
         // read in user input and store it in variable
         curReg++;
         emit( SIO2, curReg, 0, 2 );   // SIO R 0 2 - read
-        emit( STO, curReg, level - symbolTable[index].level, symbolTable[index].addr );    // STO
+        emit( STO, curReg, level - symbolList[index].level, symbolList[index].addr );    // STO
         curReg--;
 
         getNextToken( currentNode );
@@ -599,14 +599,14 @@ void statement( node *currentNode )
         i = currentToken;
         index = findToken(i);
 
-        if ( symbolTable[index].kind != variable )
+        if ( symbolList[index].kind != variable )
         {
             error(11);
         }
 
         // write variable to screen
         curReg++;
-        emit( LOD, curReg, level - symbolTable[index].level, symbolTable[index].addr );    // LOD
+        emit( LOD, curReg, level - symbolList[index].level, symbolList[index].addr );    // LOD
         emit( SIO1, curReg, 0, 1 );    // SIO R 0 1 - print
         curReg--;
 
@@ -913,7 +913,6 @@ void error( int errorVal )
     }
 
     printf( "\n" );
-    exit(1);
 }// end function error
 
 
@@ -993,7 +992,7 @@ void insertNode( node **head, int token )
         end->next = temp;
     }
 
-    printf("%d\n", token);
+    //printf("%d\n", token);
 
 }// end function insertNode
 

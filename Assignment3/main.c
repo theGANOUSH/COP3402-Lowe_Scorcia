@@ -7,7 +7,6 @@ Matthew B. Gerber (Adjunct)
 University of Central Florida
 */
 
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -79,11 +78,13 @@ typedef struct
 
 // Global variables
 int currentToken;
+int equation;
 int curReg;
 symbol symbolList[50];
 symbol symbolTable[100];
 int stIndex;
 int symSize = 0;
+int symListSize = 0;
 int codeLine;
 instruction code[CODE_SIZE];
 int printSuccess;
@@ -146,20 +147,10 @@ int main( int argc, char **argv )
     node *currentNode, **head;
     currentNode = getTokenList();
 
-    // put the symbol table into global variable symbol table
+    //Get number of different variables
     stSize = getSymbolList( symbolList );
 
-    /*
-    // for debugging - comment out when program running
-    for ( i = 1; i <= stSize; i++ )
-    {
-        printf("%d thing in symbol table is %s\n", i, symbolTable[i].name);
-    }
-    */
-
-    // call program
     program( currentNode );
-
     printCode();
 
 }// end function main
@@ -181,6 +172,7 @@ void program( node *currentNode )
     }
     else
     {
+        printf("Final Node is a period\n");
         emit( SIO3, 0, 0, 3 );  // SIO R 0 3 - halt program
         if ( printSuccess )
             printf("No errors, program is syntactically correct\n" );
@@ -234,11 +226,12 @@ void block( node *currentNode )
 
 
     // uncomment next section for debugging purposes
-    /*
-    for ( i = 0; i <= stIndex; i++ )
-        printf("%s\t%d\t%d\t%d\t%d\n", symbolTable[i].name,
-                       symbolTable[i].kind, symbolTable[i].val, symbolTable[i].level, symbolTable[i].addr);
-    */
+/*
+    for ( i = 0; i <= stIndex; i++ ){
+        printf("END OF BLOCK: %s\t%d\t%d\t%d\t%d\n", symbolList[i].name,
+                       symbolList[i].kind, symbolList[i].val, symbolList[i].level, symbolList[i].addr);
+    }
+*/
 
     stIndex = stIndex - (numVars + numProcs + numConsts);
     emit( RTN, 0, 0, 0 );
@@ -919,7 +912,7 @@ void error( int errorVal )
 // reads the lexeme list from file into a linked list and returns the head
 node *getTokenList()
 {
-    int buffer, i, j, found = 0, currentLevel = 0, finished = 0;
+    int buffer, previous, i, j, found = 0, currentLevel = 0, finished = 0;
     char word[12];
     int tableIndex;
     FILE *tlfp = fopen("tokenlist.txt", "r");
@@ -936,7 +929,7 @@ node *getTokenList()
     while(fscanf(tlfp, "%d", &buffer) != EOF)
     {
 
-        if(buffer == identSym)
+        if(buffer == identSym && previous != numberSym)
         {
             insertNode(&head, buffer);
             fscanf(tlfp, "%s", word);
@@ -959,6 +952,8 @@ node *getTokenList()
         {
             insertNode(&head, buffer);
         }
+
+        previous = buffer;
     }
 
     fclose(tlfp);
@@ -992,7 +987,7 @@ void insertNode( node **head, int token )
         end->next = temp;
     }
 
-    //printf("%d\n", token);
+    printf("%d\n", token);
 
 }// end function insertNode
 
@@ -1090,11 +1085,15 @@ void printSymTable()
 {
     FILE *ofp;
     ofp = fopen("symbolTable.txt", "w");
-    int i;
+    int i, j;
 
+
+    for(j = 1; strcmp(symbolList[j].name, "") != 0 ; j++){
+
+    }
     fprintf(ofp, "Name\tType\tLevel\tValue\n");
 
-    for(i = 0; i <= symSize; i++)
+    for(i = 1; i < j; i++)
     {
         if(symbolList[i].kind == variable)
         {

@@ -454,7 +454,7 @@ void statement( node *currentNode )
         if ( i == 0 )
             error(7);
 
-        if ( symbolTable[i].kind != procedure )
+        if ( symbolList[i].kind != procedure )
             error(24);
 
         // printf( "CAL on index %d for %s is at location %d\n", i, symbolTable[i].name, symbolTable[i].addr);

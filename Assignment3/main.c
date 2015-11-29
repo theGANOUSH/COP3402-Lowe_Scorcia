@@ -829,7 +829,7 @@ void getNextToken( node *currentNode )
     }
 
     // used for debugging:  comment out when done
-    // printf("%d\n", currentToken );
+     printf("currentToken = %d\n", currentToken );
 
 }// end function getNextToken
 

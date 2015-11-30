@@ -115,6 +115,7 @@ void ALUOp(struct instruction *node)
             break;
         default:
             printf("Unrecognized Code");
+            exit(1);
             break;
     }
 
@@ -183,6 +184,7 @@ void opCodeTranslate(struct instruction *node)
             break;
         default:
             printf("Unrecognized Code");
+            exit(1);
             break;
     }
 

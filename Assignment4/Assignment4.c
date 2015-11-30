@@ -7,16 +7,22 @@ void error(int code);
 
 int main(int argc, char* argv[])
 {
+    FILE *inputtxt = fopen("input.txt", "r");
     FILE *argument;
     int i = 0;
     int status = 0;
+
+    if(inputtxt == NULL)
+    {
+        error(404);
+    }
 
     status = system("./Assignment2");
 
     if(status == 0)
     {
-        printf("Assignment2 -- DONE\n");
-//        status = system("./Assignment3");
+//        printf("Assignment2 -- DONE\n");
+        status = system("./Assignment3");
 
         if(status == 0)
         {
@@ -90,6 +96,7 @@ void error(int code)
     {
         case 404:
             printf("ERROR: FILE NOT FOUND");
+            exit(1);
             break;
         case 1:
             printf("ERROR: PROGRAM HALTED");

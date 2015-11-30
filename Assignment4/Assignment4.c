@@ -3,6 +3,7 @@
 #include <string.h>
 
 void printfile(FILE *input);
+void error(int code);
 
 int main(int argc, char* argv[])
 {
@@ -11,11 +12,23 @@ int main(int argc, char* argv[])
     int status = 0;
 
     status = system("./Assignment2");
-
-    //status = system("./Assignment3");
-
-    //status = system("./Assignment1");
-
+    if(status != 0)
+    {
+        error(status);
+    }
+    printf("Status after Assignment 2 = %d\n", status);
+    status = system("./Assignment3");
+    if(status != 0)
+    {
+        error(status);
+    }
+    printf("Status after Assignment3 = %d\n", status);
+    status = system("./Assignment1");
+    if(status != 0)
+    {
+        error(status);
+    }
+    printf("Status after Assignment 1 = %d\n", status);
 
     for(i = 1; i < argc; i++)
     {
@@ -58,7 +71,7 @@ void printfile(FILE *input)
 
     if(input == NULL)
     {
-        printf("ERROR: File not found\n");
+        error(404);
     }
     else
     {
@@ -72,6 +85,17 @@ void printfile(FILE *input)
         fclose(input);
     }
 
-
 }
 
+void error(int code)
+{
+    switch(code)
+    {
+        case 404:
+            printf("ERROR: FILE NOT FOUND");
+            break;
+        case 1:
+            printf("ERROR: PROGRAM HALTED");
+            break;
+    }
+}

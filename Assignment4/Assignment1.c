@@ -18,6 +18,7 @@ University of Central Florida
 
 FILE *ifp;
 FILE *ofp;
+FILE *sofp;
 
 int sPoint = 0, bPoint = 1, pCount = 0, HALT = 0;
 int STACK[MAX_STACK_HEIGHT] = {0};
@@ -200,12 +201,13 @@ void printStack()
             if(LEXI[frame] > 0 && j > LEXI[frame])
             {
 
-                fprintf(ofp, "| ");
+                fprintf(sofp, "| ");
                 frame++;
             }
-            fprintf(ofp, "%d ", STACK[j]);
+            fprintf(sofp, "%d ", STACK[j]);
 
         }
+        fprintf(sofp, "\n");
     }
 }
 
@@ -415,6 +417,7 @@ int main()
 
     ifp = fopen("mcode.txt", "r");
     ofp = fopen("stacktrace.txt", "w");
+    sofp = fopen("acode.txt", "w");
 
     while(fscanf(ifp, "%d", &code) != EOF)
     {

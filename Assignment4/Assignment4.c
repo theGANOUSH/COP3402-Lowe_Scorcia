@@ -12,23 +12,16 @@ int main(int argc, char* argv[])
     int status = 0;
 
     status = system("./Assignment2");
-    if(status != 0)
+
+    if(status == 0)
     {
-        error(status);
+        status = system("./Assignment3");
+
+        if(status == 0)
+        {
+            status = system("./Assignment1");
+        }
     }
-    printf("Status after Assignment 2 = %d\n", status);
-    status = system("./Assignment3");
-    if(status != 0)
-    {
-        error(status);
-    }
-    printf("Status after Assignment3 = %d\n", status);
-    status = system("./Assignment1");
-    if(status != 0)
-    {
-        error(status);
-    }
-    printf("Status after Assignment 1 = %d\n", status);
 
     for(i = 1; i < argc; i++)
     {
@@ -56,7 +49,8 @@ int main(int argc, char* argv[])
         }
         if(strcmp(argv[i], "-a") == 0)
         {
-            //printfile("acode.txt");
+            argument = fopen("acode.txt", "r");
+            printfile(argument);
         }
 
     }
@@ -69,11 +63,7 @@ void printfile(FILE *input)
 {
     char buffer;
 
-    if(input == NULL)
-    {
-        error(404);
-    }
-    else
+    if(input != NULL)
     {
         while(fscanf(input, "%c", &buffer) != EOF)
         {
@@ -83,6 +73,11 @@ void printfile(FILE *input)
         printf("\n");
 
         fclose(input);
+    }
+
+    else
+    {
+        return;
     }
 
 }

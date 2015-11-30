@@ -15,17 +15,19 @@ int main(int argc, char* argv[])
 
     if(status == 0)
     {
-        status = system("./Assignment3");
+        printf("Assignment2 -- DONE\n");
+//        status = system("./Assignment3");
 
         if(status == 0)
         {
+            //printf("Assignment3 -- DONE/n");
             status = system("./Assignment1");
         }
     }
 
     for(i = 1; i < argc; i++)
     {
-        printf("%s\n", argv[i]);
+        //printf("%s\n", argv[i]);
 
         if(strcmp(argv[i], "-v") == 0)
         {

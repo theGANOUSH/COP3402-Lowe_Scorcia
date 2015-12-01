@@ -41,7 +41,7 @@ typedef enum
 
 typedef enum
 {
-    LIT = 1, RTN, LOD, STO, CAL, INC, JMP, JPC, SIO1, SIO2, SIO3,
+    LIT = 1, OPR, LOD, STO, CAL, INC, JMP, JPC, SIO1, SIO2, SIO3,
     NEG, ADD, SUB, MUL, DIV, ODD, MOD, EQL, NEQ, LSS, LEQ, GTR, GEQ
 } op_code;
 
@@ -78,7 +78,7 @@ typedef struct
 
 // Global variables
 int currentToken;
-int equation;
+int equation = 0;
 int curReg;
 symbol symbolList[50];
 symbol symbolTable[100];
@@ -89,6 +89,7 @@ int codeLine;
 instruction code[CODE_SIZE];
 int printSuccess;
 int level;
+int emitNumber = 0;
 
 
 // function declarations
@@ -109,21 +110,13 @@ void addtoSymbolTable( int symbolKind, char name[12], int Value);
 int findToken( int token );
 void insertSymbol(int kind, char name[12], int Value);
 void printSymTable();
-
-
 node *createNode( int data );
 void insertNode( node **head, int token );
 node *getTokenList();
 int findSymbol(char name[12], int total);
-
-int getSymbolList( symbol *st );
-
 void destroyNodes( node *headNode );
-
 void emit( int op, int r, int l, int m );
-
 void printCode();
-
 void printNodes( node **head );
 void addtoSymbolList( int symbolKind, int symListIndex );
 
@@ -132,24 +125,14 @@ void addtoSymbolList( int symbolKind, int symListIndex );
 // begin function main
 int main( int argc, char **argv )
 {
-    int i, stSize;
     curReg = -1;
     codeLine = 0;
-    printSuccess = 0;
     level = -1;
     stIndex = 0;
 
-    // if Compile Driver passes an argument, then print to screen the success result
-    if ( argc > 1 )
-        printSuccess = 1;
-
     // gets the lexeme list into the global variable
-    node *currentNode, **head;
+    node *currentNode;
     currentNode = getTokenList();
-
-    //Get number of different variables
-    stSize = getSymbolList( symbolList );
-
     program( currentNode );
     printCode();
 
@@ -172,10 +155,7 @@ void program( node *currentNode )
     }
     else
     {
-        printf("Final Node is a period\n");
         emit( SIO3, 0, 0, 3 );  // SIO R 0 3 - halt program
-        if ( printSuccess )
-            printf("No errors, program is syntactically correct\n" );
     }
 }// end function program
 
@@ -185,22 +165,9 @@ void program( node *currentNode )
 void block( node *currentNode )
 {
     int space, numVars = 0, numProcs = 0, numConsts = 0;
-    int jmpAddress, procAddress;
-    int i;
-
+    int jmpAddress;
     level++;
-    /*
-    if ( level == 0 )  // we are in main, so only need space for new variables
-    {
-        space = 0;
-    }
-    else    // also create space in AR for funct val, SL, DL, & RA
-    {
-        space = 4;
-    }
-     */
     space = 4;
-
     jmpAddress = codeLine;
     emit( JMP, 0, 0, 0 );
 
@@ -215,27 +182,15 @@ void block( node *currentNode )
 
     space += numVars;
 
-    if ( currentToken == procSym )
+    if ( currentToken == procSym ){
         numProcs = procedure_declaration( currentNode );
+    }
 
     code[jmpAddress].m = codeLine;
-
     emit( INC, 0, 0 , space );
-
     statement( currentNode );
-
-
-    // uncomment next section for debugging purposes
-/*
-    for ( i = 0; i <= stIndex; i++ ){
-        printf("END OF BLOCK: %s\t%d\t%d\t%d\t%d\n", symbolList[i].name,
-                       symbolList[i].kind, symbolList[i].val, symbolList[i].level, symbolList[i].addr);
-    }
-*/
-
     stIndex = stIndex - (numVars + numProcs + numConsts);
-    emit( RTN, 0, 0, 0 );
-
+    emit( OPR, 0, 0, 0 );
     level--;
 
 }// end function block
@@ -245,7 +200,7 @@ void block( node *currentNode )
 // declaration as defined by EBNF
 int const_declaration( node *currentNode )
 {
-    int symListIndex, constIndex, constValue;
+    int symListIndex, constValue;
     int constCount = 0;
 
     // repeat getting new constants as long as there are more
@@ -284,10 +239,8 @@ int const_declaration( node *currentNode )
         // get the value the constant is set to, and sets the value of the
         // constant to the value of the integer
         getNextToken( currentNode );
-        constIndex = currentToken;
         constValue = currentToken;
         symbolList[stIndex].val = constValue;
-
         getNextToken( currentNode );
 
     } while ( currentToken == commaSym );
@@ -373,9 +326,6 @@ int procedure_declaration( node *currentNode )
         addtoSymbolList( procedure, symListIndex );
         symbolTable[stIndex].level = level;
         symbolTable[stIndex].addr = codeLine;
-
-        //printf("Procedure %s is at line %d\n", symbolTable[stIndex].name, symbolTable[stIndex].addr);
-
         getNextToken( currentNode );
 
         // if there are no more const, then we should have a semicolon
@@ -415,7 +365,6 @@ void statement( node *currentNode )
         i = currentToken;
 
         index = findToken(i);
-        //printf("At location %d\n", index);
 
         if ( index == 0 )
             error(7);
@@ -433,6 +382,8 @@ void statement( node *currentNode )
         getNextToken( currentNode );
 
         expression( currentNode );
+        symbolList[index].val = equation;
+        equation = 0;
 
         emit( STO, curReg, level - symbolList[index].level, symbolList[index].addr );    // STO = 4
         curReg--;
@@ -506,14 +457,13 @@ void statement( node *currentNode )
         if ( currentToken == elseSym )
         {
             getNextToken( currentNode );
-
             cx2 = codeLine;
             emit (JMP, 0, 0, 0 );
-
+            emit (JMP, 0, 0, 0 );
             code[ctemp].m = codeLine;
-
             statement( currentNode );
             code[cx2].m = codeLine;
+
         }
         else
         {
@@ -529,6 +479,7 @@ void statement( node *currentNode )
 
         getNextToken( currentNode );
 
+
         condition( currentNode );
 
         cx2 = codeLine;
@@ -542,9 +493,9 @@ void statement( node *currentNode )
 
         statement( currentNode );
 
-        emit( JMP, 0, 0, cx1 );    // JMP
+        emit( JMP, 0, 0, cx1 );
 
-        code[cx2].m = codeLine;
+        code[cx2].m = codeLine + 1;
 
     }// end "while" if
 
@@ -626,7 +577,7 @@ void condition( node *currentNode )
 
         expression( currentNode );
 
-        emit( ODD, curReg, 0, 0 );   // ODD
+        emit( 2, curReg, 0, 6);   // ODD
 
     }
 
@@ -645,7 +596,7 @@ void condition( node *currentNode )
 
         expression( currentNode );
 
-        emit( relOpCode, curReg-1, curReg-1, curReg );  // EQL thru GEQ
+        emit( 2, curReg-1, 0, relOpCode );  // EQL thru GEQ
         curReg--;
     }
 }// end function condition
@@ -657,22 +608,22 @@ int rel_op (  )
     switch ( currentToken )
     {
         case eqSym:
-            return EQL;  // 19
+            return 8;  // 19
             break;
         case neqSym:
-            return NEQ;  // 20
+            return 9;  // 20
             break;
         case lesSym:
-            return LSS;  // 21
+            return 10;  // 21
             break;
         case leqSym:
-            return LEQ;  // 22
+            return 11;  // 22
             break;
         case gtrSym:
-            return GTR;  // 23
+            return 12;  // 23
             break;
         case geqSym:
-            return GEQ;  // 24
+            return 13;  // 24
             break;
         default:
             return 0;   // error
@@ -695,7 +646,7 @@ void expression( node *currentNode )
         getNextToken( currentNode );
         term ( currentNode );
 
-        emit( NEG, curReg, curReg, 0 );  // 12
+        emit( 2, curReg, 0, 0 );  // 12
     }
     else
     {
@@ -711,12 +662,12 @@ void expression( node *currentNode )
 
         if ( addop == plusSym )
         {
-            emit ( ADD, curReg-1, curReg-1, curReg );    // ADD = 13
+            emit ( 2, curReg-1, 0, 2 );    // ADD = 13
             curReg--;
         }
         if ( addop == minusSym )
         {
-            emit ( SUB, curReg-1, curReg-1, curReg );    // SUB = 14
+            emit ( 2, curReg-1, 0, 3 );    // SUB = 14
             curReg--;
         }
     }
@@ -742,12 +693,13 @@ void term( node *currentNode )
 
         if ( mulOp == multSym )     // Multiplication
         {
-            emit( MUL, curReg-1, curReg-1, curReg ); // MUL = 15
+            emit( 2, curReg-1, 0, 4 ); // MUL = 15
             curReg--;
+
         }
         if ( mulOp == slashSym )    // Division
         {
-            emit( DIV, curReg-1, curReg-1, curReg ); // DIV = 16
+            emit( 2, curReg-1, 0, 5 ); // DIV = 16
             curReg--;
         }
     }
@@ -767,6 +719,7 @@ void factor( node *currentNode )
         getNextToken( currentNode );
         i = currentToken;
         index = findToken(i);
+        equation = symbolList[index].val;
 
         curReg++;
 
@@ -790,6 +743,7 @@ void factor( node *currentNode )
     {
         getNextToken( currentNode );
         i = currentToken;
+        equation = i;
         //index = findToken(i);
 
         value = i;
@@ -819,17 +773,11 @@ void factor( node *currentNode )
 // gets the next token in the lexeme list from lexeme list linked list
 void getNextToken( node *currentNode )
 {
-    node *temp;
-
     currentToken = currentNode->token;
-
     if ( currentNode->next != NULL )
     {
         *currentNode = *currentNode->next;
     }
-
-    // used for debugging:  comment out when done
-     printf("currentToken = %d\n", currentToken );
 
 }// end function getNextToken
 
@@ -906,19 +854,19 @@ void error( int errorVal )
     }
 
     printf( "\n" );
+    exit(1);
 }// end function error
 
 
 // reads the lexeme list from file into a linked list and returns the head
 node *getTokenList()
 {
-    int buffer, previous, i, j, found = 0, currentLevel = 0, finished = 0;
+    int buffer, previous;
     char word[12];
     int tableIndex;
     FILE *tlfp = fopen("tokenlist.txt", "r");
     node *head, *tail;
     head = tail = NULL;
-    int type = 0;
 
     // exit program if file not found
     if (tlfp == NULL) {
@@ -987,8 +935,6 @@ void insertNode( node **head, int token )
         end->next = temp;
     }
 
-    printf("%d\n", token);
-
 }// end function insertNode
 
 
@@ -1008,15 +954,8 @@ void addtoSymbolList( int symbolKind, int symListIndex )
 
     // copy name from symbolList to symbolTable
     strcpy(symbolList[stIndex].name, symbolTable[symListIndex].name );
-
     symbolList[stIndex].level = level;
     symbolList[stIndex].kind = symbolKind;
-
-    /*
-    printf("index %d\t%s\t%d\t%d\t%d\t%d\n", stIndex, symbolTable[stIndex].name,
-            symbolTable[stIndex].kind, symbolTable[stIndex].val,
-           symbolTable[stIndex].level, symbolTable[stIndex].addr);
-    */
 
 }// end function addtoSymbolTable
 
@@ -1040,14 +979,6 @@ int findSymbol(char name[12], int total)
 
 }
 
-// puts the symbol table into the symbol table array, and returns the length
-// of the symbol table
-int getSymbolList( symbol *symList )
-{
-    return symSize;
-}
-
-
 // print the appropriate code to the code file
 void emit( int op, int r, int l, int m )
 {
@@ -1055,10 +986,8 @@ void emit( int op, int r, int l, int m )
     code[codeLine].r = r;
     code[codeLine].l = l;
     code[codeLine].m = m;
-
-    //fprintf( outFP, "%d %d %d %d\n", op, r, l, m );
-
     codeLine++;
+    emitNumber ++;
 
 }// end function emit
 
